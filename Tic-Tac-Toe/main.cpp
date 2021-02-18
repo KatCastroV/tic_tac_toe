@@ -15,10 +15,11 @@ class Game
     int selection;                  //menu selection
     int player;                     //stores 1st or 2nd player selection
     std::string playerName;         //name of player
+    std::string ai = "Computer";
     int count;                      //counts wrong selections
     
-    std::vector<std::string> computerOptions = {"A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3", " "};
-    std::vector<std::string> possMoves= {"A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3"};
+    std::vector<std::string>computerOptions={"A1","A2","A3","B1","B2","B3","C1","C2","C3"};
+    std::vector<std::string>possMoves={"A1","A2","A3","B1","B2","B3","C1","C2","C3"};
 
 
 public:
@@ -27,21 +28,13 @@ public:
     void endGame();
     void declareWinner();
     void catGame();
+    void welcome();
     
-    //Displays welcome screen title
-    void welcome()
-    {
-        std::cout << "***********************************" << std::endl;
-        std::cout << "           TIC-TAC-TOE             " << std::endl;
-        std::cout << "***********************************" << std::endl;
-
-    }
+    
     
     //Generates and displays the playing area grid
     void generateGrid(int x, int y, char symbol, int t)
     {
-        
-        
         char array[ROWS][COLUMNS]= {{' ',' ',' ',' ','1',' ',' ',' ','2',' ',' ',' ','3',' '},
                                     {' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '},
                                     {'A',' ',' ',' ',' ',' ','|',' ',' ',' ','|',' ',' ',' '},
@@ -75,7 +68,7 @@ public:
             {
                 std::cout << newArray[row][col];
             }
-            std::cout << std::endl;
+            std::cout << "\n\n";
         }
         
         
@@ -229,6 +222,7 @@ public:
         std::string move;           //assigned grid location of chosen move
         bool taken;                 //for taken moves
         bool found = false;         //flag to indicate if the value was found
+        bool valid = false;
         int index = 0;              //subscript to search the array
         int position = -1;          //To record the position of the search value
         int r, c;                   //array[] rows and columns
@@ -240,6 +234,7 @@ public:
         int human;
         int turn = 1;                //keeps track of number of turns in a game
         int randomNumber;
+        int i = 0;
         
                 
         
@@ -275,46 +270,77 @@ public:
             }
             
             
-            //human player
+            count = 0;      //counter for do-while loop that checks moves entered
+            
+            //human player makes a move
             if(human == player)
             {
-                std::cout << "Player " << player << " move: ";
-                std::cin >> move;
-                
-               
+                do
+                {
+                    std::cout << playerName << " move: ";
+                    std::cin >> move;
+                    std::cout << "\n";
+                    
+                    //Search algorithm for move in the vector
+                    while(index < computerOptions.size() && !found)
+                    {
+                        if(computerOptions[index] == move)
+                        {
+                            found = true;       //set the flag
+                            position = index;   //record the value's subscript
+                        }
+                        index++;                //go to next element
+                        
+                        //std::cout << "Vector element " << computerOptions[index] << "\n";
+                    }
+                    index = 0;
+                    
+                    //If move not found to be the same as any element, it is not a possible move
+                    //Warning issued for three invalid attempts
+                    //Game ends after three invalid attempts and goes back to main menu
+                    if(!found)
+                    {
+                        count++;
+                        
+                        std::cout << "Invalid move. Try again.\n";
+                        if(count > 2)
+                        {
+                            std:: cout << "Three invalid moves ends the game.\nRedirecting you back to main menu...\n\n";
+                            menu();
+                        }
+                    }
+                    
+                    
+                    std::cout << found << "\n";
+                }while(!found);
+                found = false;       //redefinition of found to be used
             }
             
             
-            //computer player
+            //computer makes a move
             if(computer == player)
             {
-                    randomNumber = (rand() % (computerOptions.size() - 2));
-                //std::cout << "Size of randomNumber is " << computerOptions.size() -2 << std::endl;
-                //std::cout << "RandomNumber is " << randomNumber << std::endl;
-                    move = computerOptions[randomNumber];
-                std::cout << "Player " << player << " move: " << move << std::endl;
+                randomNumber = (rand() % (computerOptions.size() - 1));
+                move = computerOptions[randomNumber];
+                
+                std::cout << ai << " move: " << move << "\n\n";
+                
+                //Search algorithm for move in the vector
+                while(index < computerOptions.size() && !found)
+                {
+                    if(computerOptions[index] == move)
+                    {
+                        found = true;       //set the flag
+                        position = index;   //record the value's subscript
+                    }
+                    index++;                //go to next element
+                }
+                index = 0;      //resets index to 0
+                found = false;  //resets found condition to false
             }
         
-    
             
-            //Search algorithm for move in the vector
-            while(index < computerOptions.size() && !found)
-            {
-                if(computerOptions[index] == move)
-                {
-                    found = true;       //set the flag
-                    position = index;   //record the value's subscript
-                    
-                    
-                }
-                index++;                //go to next element
-            }
-            
-            index = 0;      //resets index to 0
-            found = false;  //resets found condition to false
-            
-            
-            //match move with grid position
+            //match move made with grid position
             for(int i = 0; i < possMoves.size(); i++)
             {
                 if(computerOptions[position] == possMoves[i])
@@ -387,6 +413,14 @@ public:
 };
 
 
+//Displays welcome screen title
+void Game::welcome()
+{
+    std::cout << "***********************************" << std::endl;
+    std::cout << "           TIC-TAC-TOE             " << std::endl;
+    std::cout << "***********************************" << std::endl;
+}
+
 //Instructions for the game
 void Game::learn()
 {
@@ -404,8 +438,6 @@ void Game::learn()
     std::cout << "A1, A2, A3, B1, B2, B3, C1, C2, C3\n";
     std::cout << "Then, press the Enter key!\n";
     std::cout << "Whoever gets three of their symbols in a row wins!\n";
-    
-    
     std::cout << "Return to menu? (Y/N) ";
     std::cin >> answer;
     
@@ -413,7 +445,8 @@ void Game::learn()
     {
         menu();
     }
-    else{
+    else
+    {
         learn();
     }
 }
