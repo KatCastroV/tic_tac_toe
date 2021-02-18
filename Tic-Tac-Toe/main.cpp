@@ -11,7 +11,7 @@ class Game
 {
     static const int ROWS= 7;
     static const int COLUMNS=14;
-    char newArray[ROWS][COLUMNS];
+    char playGrid[ROWS][COLUMNS];
     int selection;                  //menu selection
     int player;                     //stores 1st or 2nd player selection
     std::string playerName;         //name of player
@@ -35,7 +35,7 @@ public:
     //Generates and displays the playing area grid
     void generateGrid(int x, int y, char symbol, int t)
     {
-        char array[ROWS][COLUMNS]= {{' ',' ',' ',' ','1',' ',' ',' ','2',' ',' ',' ','3',' '},
+        char basicGrid[ROWS][COLUMNS]= {{' ',' ',' ',' ','1',' ',' ',' ','2',' ',' ',' ','3',' '},
                                     {' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '},
                                     {'A',' ',' ',' ',' ',' ','|',' ',' ',' ','|',' ',' ',' '},
                                     {' ',' ',' ','-','-','-','+','-','-','-','+','-','-','-'},
@@ -51,13 +51,13 @@ public:
             {
                 for(int col = 0; col < COLUMNS; col++)
                 {
-                    newArray[row][col] = array[row][col];
+                    playGrid[row][col] = basicGrid[row][col];
                 }
                 
             }
         }
         
-        newArray[x][y]=symbol;  //copies symbol in grid position of new move into newArray
+        playGrid[x][y]=symbol;  //copies symbol in grid position of new move into newArray
         
         
         //Displays playing grid
@@ -66,7 +66,7 @@ public:
             std::cout << "        ";
             for(int col = 0; col < COLUMNS; col++)
             {
-                std::cout << newArray[row][col];
+                std::cout << playGrid[row][col];
             }
             std::cout << "\n\n";
         }
@@ -82,15 +82,15 @@ public:
     //to check if they have three of their symbols in a row to win
     void checkWinner(char sym, int turns)
     {
-        char pos1 = newArray[2][4],     //A1
-             pos2 = newArray[2][8],     //A2
-             pos3 = newArray[2][12],    //A3
-             pos4 = newArray[4][4],     //B1
-             pos5 = newArray[4][8],     //B2
-             pos6 = newArray[4][12],    //B3
-             pos7 = newArray[6][4],     //C1
-             pos8 = newArray[6][8],     //C2
-             pos9 = newArray[6][12];    //C3
+        char pos1 = playGrid[2][4],     //A1
+             pos2 = playGrid[2][8],     //A2
+             pos3 = playGrid[2][12],    //A3
+             pos4 = playGrid[4][4],     //B1
+             pos5 = playGrid[4][8],     //B2
+             pos6 = playGrid[4][12],    //B3
+             pos7 = playGrid[6][4],     //C1
+             pos8 = playGrid[6][8],     //C2
+             pos9 = playGrid[6][12];    //C3
         
         
         //A1, A2, A3
@@ -146,8 +146,6 @@ public:
         {
             catGame();
         }
-        
-        
     }
     
     //Displays menu and prompts selection of menu options
