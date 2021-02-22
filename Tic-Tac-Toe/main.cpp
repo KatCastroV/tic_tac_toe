@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <vector>
+//#include <ios>
 
 
 class Game
@@ -18,47 +19,46 @@ class Game
     std::string ai = "Computer";
     int count;                      //counts wrong selections
     
+    
     std::vector<std::string>computerOptions={"A1","A2","A3","B1","B2","B3","C1","C2","C3"};
     std::vector<std::string>possMoves={"A1","A2","A3","B1","B2","B3","C1","C2","C3"};
+    char basicGrid[ROWS][COLUMNS]= {{' ',' ',' ',' ','1',' ',' ',' ','2',' ',' ',' ','3',' '},
+                                        {' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '},
+                                        {'A',' ',' ',' ',' ',' ','|',' ',' ',' ','|',' ',' ',' '},
+                                        {' ',' ',' ','-','-','-','+','-','-','-','+','-','-','-'},
+                                        {'B',' ',' ',' ',' ',' ','|',' ',' ',' ','|',' ',' ',' '},
+                                        {' ',' ',' ','-','-','-','+','-','-','-','+','-','-','-'},
+                                        {'C',' ',' ',' ',' ',' ','|',' ',' ',' ','|',' ',' ',' '}};
 
 
 public:
     //Class Functions
     void learn();
     void endGame();
-    void declareWinner();
+    void declareWinner(int turn);
     void catGame();
     void welcome();
-    
+    void scores(int turn);
+    void playAgain();
     
     
     //Generates and displays the playing area grid
     void generateGrid(int x, int y, char symbol, int t)
     {
-        char basicGrid[ROWS][COLUMNS]= {{' ',' ',' ',' ','1',' ',' ',' ','2',' ',' ',' ','3',' '},
-                                    {' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '},
-                                    {'A',' ',' ',' ',' ',' ','|',' ',' ',' ','|',' ',' ',' '},
-                                    {' ',' ',' ','-','-','-','+','-','-','-','+','-','-','-'},
-                                    {'B',' ',' ',' ',' ',' ','|',' ',' ',' ','|',' ',' ',' '},
-                                    {' ',' ',' ','-','-','-','+','-','-','-','+','-','-','-'},
-                                    {'C',' ',' ',' ',' ',' ','|',' ',' ',' ','|',' ',' ',' '}};
         
         //assigns elements of array to newArray
         if(t == 1)
         {
-            
             for(int row = 0; row < ROWS; row++)
             {
                 for(int col = 0; col < COLUMNS; col++)
                 {
                     playGrid[row][col] = basicGrid[row][col];
                 }
-                
             }
         }
         
         playGrid[x][y]=symbol;  //copies symbol in grid position of new move into newArray
-        
         
         //Displays playing grid
         for(int row = 0; row < ROWS; row++)
@@ -68,9 +68,9 @@ public:
             {
                 std::cout << playGrid[row][col];
             }
-            std::cout << "\n\n";
+            std::cout << "\n";
         }
-        
+        std::cout << "\n";
         
        if(t > 2)
        {
@@ -96,51 +96,51 @@ public:
         //A1, A2, A3
         if(pos1== sym && pos2 == sym && pos3 == sym)
         {
-            declareWinner();
+            declareWinner(turns);
         }
         
         //B1, B2, B3
         if(pos4== sym && pos5 == sym && pos6 == sym)
         {
-            declareWinner();
+            declareWinner(turns);
         }
         
         //C1, C2, C3
         if(pos7== sym && pos8 == sym && pos9 == sym)
         {
-            declareWinner();
+            declareWinner(turns);
         }
         
         //A1, B1, C1
         if(pos1 == sym && pos4 == sym && pos7 == sym)
         {
-            declareWinner();
+            declareWinner(turns);
         }
         
         //A2, B2, C2
         if(pos2 == sym && pos5 == sym && pos8 == sym)
         {
-            declareWinner();
+            declareWinner(turns);
         }
         
         //A3, B3, C3
         if(pos1 == sym && pos6 == sym && pos9 == sym)
         {
-            declareWinner();
+            declareWinner(turns);
         }
         
         //A1, B2, C3
         if(pos1 == sym && pos5 == sym && pos9 == sym)
         {
-            declareWinner();
+            declareWinner(turns);
         }
         
         //A3, B2, C1
         if(pos3 == sym && pos5 == sym && pos7 == sym)
         {
-            declareWinner();
+            declareWinner(turns);
         }
-        
+
         //turn 9 has been played and no winners have been declared
         if(turns > 10)
         {
@@ -154,7 +154,7 @@ public:
         bool valid;     //for switch statement in case of invalid selection
         
         std::cout << std::endl;
-        std::cout << "     =======================     " << std::endl;
+        //std::cout << "     =======================     " << std::endl;
         std::cout << "               MENU             " << std::endl;
         std::cout << "     =======================     " << std::endl;
         std::cout << "       1. Play" << std::endl;
@@ -172,7 +172,6 @@ public:
                     std::cout << "Enter a user name: ";
                     std::cin >> playerName;
                     
-
                     do
                     {
                         std::cout << "Enter a 1 for first player or a 2 for second player: ";
@@ -189,6 +188,7 @@ public:
                     }while(player != 1 && player != 2);
                     
                     play(playerName, player);
+                    playAgain();
                     break;
                     
                 case 2 :
@@ -207,7 +207,6 @@ public:
                     menu();
             }
         }while(valid == false);
-        
     }
     
     
@@ -255,7 +254,6 @@ public:
         {
             std::cout << "\n***Turn " << turn << "***" << std::endl;
             
-            
             //Decide who's turn it is and assigns an X or O to players
             if(player == 1)
             {
@@ -266,7 +264,6 @@ public:
             {
                 playerSymbol = nought;
             }
-            
             
             count = 0;      //counter for do-while loop that checks moves entered
             
@@ -288,8 +285,6 @@ public:
                             position = index;   //record the value's subscript
                         }
                         index++;                //go to next element
-                        
-                        //std::cout << "Vector element " << computerOptions[index] << "\n";
                     }
                     index = 0;
                     
@@ -376,17 +371,14 @@ public:
                             break;
                     }
                 }
-
-                //std::cout << r << ", " << c << std:: endl;
             }
             
-            
+            //generates play grid
             generateGrid(r,c, playerSymbol, turn);
 
             
             //deletes the element of corresponding to the position played in current turn
             computerOptions.erase(computerOptions.begin() + position);
-            
             
             
             //switch players
@@ -401,13 +393,13 @@ public:
             
             turn++;
             n++;
-           
         }
 
+        
+        
         return score;
     }
-    
-    
+
 };
 
 
@@ -422,37 +414,63 @@ void Game::welcome()
 //Instructions for the game
 void Game::learn()
 {
-    char answer;        //stores answer to exit question
+    std::cout << "\n";
+    
+    
+    //Rules heading
+    std::cout << "----------------------------------------------------------------------------------------\n";
+    std::cout << "                                  ******************\n";
+    std::cout << "                                  *      Rules     *\n";
+    std::cout << "                                  ******************\n\n";
+    
+    //prints basic grid
+    for(int row = 0; row < ROWS; row++)
+    {
+        std::cout << "                                  ";
+        for(int col = 0; col < COLUMNS; col++)
+        {
+            std::cout << basicGrid[row][col];
+        }
+        std::cout << "\n";
+    }
+    std::cout << "\n";
+    
+    //Game Rules
+    std::cout << "- Get three of the same symbols in a row vertically, horizontally, or across on the 3x3 grid.\n";
+    std::cout << "- First player gets Xs and second player gets Os.\n";
+    std::cout << "- You can play as first or second player.\n";
+    std::cout << "- Each grid location has a row letter (A, B, or C) and a column number (1, 2, or 3) assigned to it.\n";
+    std::cout << "- To enter a move, type the row letter and column number together as follows:\n";
+    std::cout << "      A1, A2, A3, B1, B2, B3, C1, C2, or C3\n";
+    std::cout << "              Then, press Enter.\n";
+    std::cout << "- Whoever gets three of their symbols in a row wins!\n\n";
+    std::cout << "                      ***To return to main menu press Enter***";
+    
+    //Two ignore statements needed because you hit enter once to select menu option 2
+    //A single one does not work
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
+    
+    //Return to main menu
+    std::cout << "----------------------------------------------------------------------------------------\n";
+    menu();
+    
+    
+}
 
-    
-    std::cout << "===============\n";
-    std::cout << "     Rules\n";
-    std::cout << "===============\n";
-    std::cout << "Get three of the same symbols in a row vertically, horizontally, or across on the 3x3 grid.\n";
-    std::cout << "First player gets Xs and second player gets Os.\n";
-    std::cout << "You can play as first or second player.\n";
-    std::cout << "Each grid location has a row letter (A, B, or C) and a column number (1, 2, or 3) assigned to it.\n";
-    std::cout << "To enter a move, type the row letter and column number together as follows:\n";
-    std::cout << "A1, A2, A3, B1, B2, B3, C1, C2, C3\n";
-    std::cout << "Then, press the Enter key!\n";
-    std::cout << "Whoever gets three of their symbols in a row wins!\n";
-    std::cout << "Return to menu? (Y/N) ";
-    std::cin >> answer;
-    
-    if(answer == 'y' || answer == 'Y')
-    {
-        menu();
-    }
-    else
-    {
-        learn();
-    }
+//Keep score for multiple games
+void Game::scores(int turn)
+{
+    std::cout << "Total number of moves: " << turn  << "\n";
+    std::cout << "Score is " << playerName << ": " ;
 }
 
 //Declares winner with a print statement, then terminates game
-void Game::declareWinner()
+void Game::declareWinner(int turn)
 {
     std::cout << "\n***Player " << player << " is the winner!***" << std::endl;
+    scores(turn);
+    playAgain();
     endGame();
 }
 
@@ -462,6 +480,44 @@ void Game::catGame()
     std::cout << "\n***Cat game!***\n";
 }
 
+//Asks the user if they would like to play again
+void Game::playAgain()
+{
+    char response;
+    bool valid = true;
+    int count = 1;
+    
+    do
+    {
+        std::cout << "\nWould you like to play again? (Y/N) ";
+        std::cin >> response;
+        
+        switch(response)
+        {
+            case 'Y':
+                play(playerName, player);
+                break;
+                
+            case 'N':
+                endGame();
+                break;
+                
+            default:
+                count++;
+                valid = false;
+                std::cout << "Invalid response. Please enter 'Y' for yes or 'N' for no.";
+                break;
+        }
+        
+       
+        if(count > 3)
+        {
+            std::cout << "Exceeded the number of invalid responses allowed.\nRedirecting to main menu...\n";
+        }
+        
+    }while(!valid);
+}
+
 //Quits Game
 void Game::endGame()
 {
@@ -469,13 +525,12 @@ void Game::endGame()
     exit(EXIT_SUCCESS);
 }
 
+//main
 int main(int argc, const char * argv[])
 {
-
     Game title, men;
     title.welcome();
     men.menu();
-    
     
     return 0;
 }
