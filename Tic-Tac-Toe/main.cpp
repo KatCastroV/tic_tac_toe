@@ -5,21 +5,25 @@
 
 #include <iostream>
 #include <vector>
-//#include <ios>
 
 
 class Game
 {
     static const int ROWS= 7;
     static const int COLUMNS=14;
-    char playGrid[ROWS][COLUMNS];
+    char playGrid[ROWS][COLUMNS];   //grid generated with players moves
     int selection;                  //menu selection
     int player;                     //stores 1st or 2nd player selection
     std::string playerName;         //name of player
-    std::string ai = "Computer";
+    std::string ai = "Computer";    //name of AI
     int count;                      //counts wrong selections
+    int n = 1;                      //keeps track of number of moves taken
+    int computer;
+    int human;
+    int gamesPlayed = 0;                //number of games played
     
-    
+    std::string humanWin[10];               //keeps track of number of wins for human player
+    std::string computerWin[10];            //keeps track of number of wins for computer player
     std::vector<std::string>computerOptions={"A1","A2","A3","B1","B2","B3","C1","C2","C3"};
     std::vector<std::string>possMoves={"A1","A2","A3","B1","B2","B3","C1","C2","C3"};
     char basicGrid[ROWS][COLUMNS]= {{' ',' ',' ',' ','1',' ',' ',' ','2',' ',' ',' ','3',' '},
@@ -38,11 +42,14 @@ public:
     void declareWinner(int turn);
     void catGame();
     void welcome();
-    void scores(int turn);
     void playAgain();
+    void newGame();
+    void scores();
+    void printScores();
+    void menuOptions();
     
     
-    //Generates and displays the playing area grid
+    //Generates and displays the playing area grid during play
     void generateGrid(int x, int y, char symbol, int t)
     {
         
@@ -149,12 +156,9 @@ public:
     }
     
     //Displays menu and prompts selection of menu options
-    void menu()
+    void printMenu()
     {
-        bool valid;     //for switch statement in case of invalid selection
-        
         std::cout << std::endl;
-        //std::cout << "     =======================     " << std::endl;
         std::cout << "               MENU             " << std::endl;
         std::cout << "     =======================     " << std::endl;
         std::cout << "       1. Play" << std::endl;
@@ -163,50 +167,7 @@ public:
         std::cout << "      Make a selection: ";
         std::cin >> selection;
         
-        
-        do{
-            switch(selection)
-            {
-                case 1 :
-                    valid = true;
-                    std::cout << "Enter a user name: ";
-                    std::cin >> playerName;
-                    
-                    do
-                    {
-                        std::cout << "Enter a 1 for first player or a 2 for second player: ";
-                        std::cin >> player;
-                        
-                        count++;
-                        
-                        //
-                        if(count == 5)
-                        {
-                            std::cout << "Sorry, you have exceeded the number of incorrect selections." << std::endl;
-                            endGame();
-                        }
-                    }while(player != 1 && player != 2);
-                    
-                    play(playerName, player);
-                    playAgain();
-                    break;
-                    
-                case 2 :
-                    valid = true;
-                    learn();
-                    break;
-                    
-                case 3 :
-                    valid = true;
-                    endGame();
-                    break;
-                    
-                default:
-                    valid = false;
-                    std::cout  << "\n*Invalid selection. Please try again.*\n";
-                    menu();
-            }
-        }while(valid == false);
+        menuOptions();
     }
     
     
@@ -223,12 +184,9 @@ public:
         int index = 0;              //subscript to search the array
         int position = -1;          //To record the position of the search value
         int r, c;                   //array[] rows and columns
-        int n = 1;                  //number of moves taken
         static char cross = 'X';    //For first player
         static char nought = 'O';   //For second player
         char playerSymbol;          //either an X or an O
-        int computer;
-        int human;
         int turn = 1;                //keeps track of number of turns in a game
         int randomNumber;
         int i = 0;
@@ -249,7 +207,7 @@ public:
         }
         
         
-        //Loops for no longer than the total amount of moves in a game (9)
+        //Loops for no more than total of MAX_MOVES
         while(n < MAX_MOVES)
         {
             std::cout << "\n***Turn " << turn << "***" << std::endl;
@@ -299,12 +257,12 @@ public:
                         if(count > 2)
                         {
                             std:: cout << "Three invalid moves ends the game.\nRedirecting you back to main menu...\n\n";
-                            menu();
+                            printMenu();
                         }
                     }
                     
                     
-                    std::cout << found << "\n";
+                    
                 }while(!found);
                 found = false;       //redefinition of found to be used
             }
@@ -411,6 +369,60 @@ void Game::welcome()
     std::cout << "***********************************" << std::endl;
 }
 
+//Selected menu options
+void Game::menuOptions()
+{
+    bool valid;     //for switch statement in case of invalid selection
+    
+    do{
+        switch(selection)
+        {
+            case 1 :
+                
+                if(gamesPlayed == 0)
+                {
+                    valid = true;
+                    std::cout << "Enter a user name: ";
+                    std::cin >> playerName;
+                }
+                
+                do
+                {
+                    std::cout << "Enter a 1 for first player or a 2 for second player: ";
+                    std::cin >> player;
+                    
+                    count++;
+                    
+                    //
+                    if(count == 5)
+                    {
+                        std::cout << "Sorry, you have exceeded the number of incorrect selections." << std::endl;
+                        endGame();
+                    }
+                }while(player != 1 && player != 2);
+                
+                play(playerName, player);
+                playAgain();
+                break;
+                
+            case 2 :
+                valid = true;
+                learn();
+                break;
+                
+            case 3 :
+                valid = true;
+                endGame();
+                break;
+                
+            default:
+                valid = false;
+                std::cout  << "\n*Invalid selection. Please try again.*\n";
+                printMenu();
+        }
+    }while(valid == false);
+}
+
 //Instructions for the game
 void Game::learn()
 {
@@ -453,24 +465,19 @@ void Game::learn()
     
     //Return to main menu
     std::cout << "----------------------------------------------------------------------------------------\n";
-    menu();
+    printMenu();
     
     
-}
-
-//Keep score for multiple games
-void Game::scores(int turn)
-{
-    std::cout << "Total number of moves: " << turn  << "\n";
-    std::cout << "Score is " << playerName << ": " ;
 }
 
 //Declares winner with a print statement, then terminates game
 void Game::declareWinner(int turn)
 {
+    
     std::cout << "\n***Player " << player << " is the winner!***" << std::endl;
-    scores(turn);
     playAgain();
+    scores();
+    //playAgain();
     endGame();
 }
 
@@ -487,18 +494,38 @@ void Game::playAgain()
     bool valid = true;
     int count = 1;
     
+    
+    gamesPlayed++;      //keeps track of how many games are being played
+    
     do
     {
         std::cout << "\nWould you like to play again? (Y/N) ";
         std::cin >> response;
+        std::cout << "\n";
         
         switch(response)
         {
             case 'Y':
+                
+                newGame();
+                menuOptions();      //gives option to select other play
+                play(playerName, player);
+                break;
+                
+            case 'y':
+                
+                newGame();
+                menuOptions();      //gives option to select other play
                 play(playerName, player);
                 break;
                 
             case 'N':
+                printScores();
+                endGame();
+                break;
+                
+            case 'n':
+                printScores();
                 endGame();
                 break;
                 
@@ -518,6 +545,103 @@ void Game::playAgain()
     }while(!valid);
 }
 
+//Resets everything for new game
+void Game::newGame()
+{
+    
+    //clears play grid by assigning playGrid to the basicGrid elements
+    for(int row = 0; row < ROWS; row++)
+    {
+        for(int col = 0; col < COLUMNS; col++)
+        {
+            playGrid[row][col] = basicGrid[row][col];
+        }
+    }
+    
+    //fills vector with all possible moves
+    computerOptions = possMoves;
+    
+    //resets counter that keeps track of number of moves in a single game
+    n = 1;
+}
+
+void Game::scores()
+{
+    std::string win = "W";
+    std::string lose = "L";
+    int losses;                 //Used to calculate the losses of a player
+    
+    
+    /*
+    if(player == human)
+    {
+        humanWin[gamesPlayed-1]=win;
+        
+    }
+    else
+    {
+        humanWin[gamesPlayed-1]=lose;
+    }
+    
+    if(player == computer)
+    {
+        computerWin[gamesPlayed]=win;
+        
+    }
+    else
+    {
+        computerWin[gamesPlayed-1]= lose;
+    }
+    */
+    
+    std::cout << "Games played are " << gamesPlayed << "\n";
+    
+    for(int i = 0; i < gamesPlayed; i++)
+    {
+            
+            if(player == human)
+            {
+                humanWin[gamesPlayed-1]=win;
+                
+            }
+            else
+            {
+                humanWin[gamesPlayed-1]=lose;
+            }
+            if(player == computer)
+            {
+                computerWin[gamesPlayed-1]=win;
+                
+            }
+            else
+            {
+                computerWin[gamesPlayed-1]= lose;
+            }
+    }
+     
+    
+    
+    
+}
+
+void Game::printScores()
+{
+    //Prints scores of all games played in a row (max 10)
+    std::cout << "     Games     |     Human     |     Computer\n";
+    std::cout << "---------------------------------------------\n";
+    for(int i = 0; i < gamesPlayed; i++)
+    {
+        if(i < 10)
+        {
+            std::cout << "    Game " << i + 1  << "     |       " << humanWin[i] << "       |         " << computerWin[i] << "\n";
+        }
+        else
+        {
+            std::cout << "    Game " << i + 1  << "    |       " << humanWin[i] << "       |         " << computerWin[i] << "\n";
+        }
+    }
+}
+
 //Quits Game
 void Game::endGame()
 {
@@ -530,7 +654,7 @@ int main(int argc, const char * argv[])
 {
     Game title, men;
     title.welcome();
-    men.menu();
+    men.printMenu();
     
     return 0;
 }
