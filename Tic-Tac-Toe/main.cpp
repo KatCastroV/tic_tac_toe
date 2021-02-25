@@ -17,10 +17,11 @@ class Game
     std::string playerName;         //name of player
     std::string ai = "Computer";    //name of AI
     int count;                      //counts wrong selections
-    int n = 1;                      //keeps track of number of moves taken
+    int n = 0;                      //keeps track of number of moves taken
     int computer;
     int human;
     int gamesPlayed = 0;                //number of games played
+    int cat = 0;
     
     std::string humanWin[10];               //keeps track of number of wins for human player
     std::string computerWin[10];            //keeps track of number of wins for computer player
@@ -47,6 +48,7 @@ public:
     void scores();
     void printScores();
     void menuOptions();
+    void playerRoles();
     
     
     //Generates and displays the playing area grid during play
@@ -131,7 +133,7 @@ public:
         }
         
         //A3, B3, C3
-        if(pos1 == sym && pos6 == sym && pos9 == sym)
+        if(pos3 == sym && pos6 == sym && pos9 == sym)
         {
             declareWinner(turns);
         }
@@ -148,8 +150,8 @@ public:
             declareWinner(turns);
         }
 
-        //turn 9 has been played and no winners have been declared
-        if(turns > 10)
+        //turn 9 has been played and no winners have been declared above, then cat game
+        if(turns > 8)
         {
             catGame();
         }
@@ -171,16 +173,13 @@ public:
     }
     
     
-    
     //Gameplay
-    int play(std::string userName, int player)
+    int play()
     {
-        static const int MAX_MOVES = 10;
+        static const int MAX_MOVES = 9;
         int score;                  //For score at the end of game
         std::string move;           //assigned grid location of chosen move
-        bool taken;                 //for taken moves
         bool found = false;         //flag to indicate if the value was found
-        bool valid = false;
         int index = 0;              //subscript to search the array
         int position = -1;          //To record the position of the search value
         int r, c;                   //array[] rows and columns
@@ -188,23 +187,10 @@ public:
         static char nought = 'O';   //For second player
         char playerSymbol;          //either an X or an O
         int turn = 1;                //keeps track of number of turns in a game
-        int randomNumber;
-        int i = 0;
+        int randomNumber;           //For random moves of the computer
         
-                
-        
-        human = player;             //assigns human player a 1 or a 2
-        
-        //Assigns first and second player to AI or human
-        if(human==1)
-        {
-            computer = 2;
-        }
-        else if(human == 2)
-        {
-            computer = 1;
-            player = 1;
-        }
+        //Asigns players a role of either human or computer
+        playerRoles();
         
         
         //Loops for no more than total of MAX_MOVES
@@ -260,9 +246,6 @@ public:
                             printMenu();
                         }
                     }
-                    
-                    
-                    
                 }while(!found);
                 found = false;       //redefinition of found to be used
             }
@@ -271,8 +254,18 @@ public:
             //computer makes a move
             if(computer == player)
             {
-                randomNumber = (rand() % (computerOptions.size() - 1));
-                move = computerOptions[randomNumber];
+                if(turn < 9)
+                {
+                    randomNumber = (rand() % (computerOptions.size() - 1));
+                    move = computerOptions[randomNumber];
+                }
+                else
+                {
+                    randomNumber = (rand() % (computerOptions.size()));
+                    move = computerOptions[randomNumber];
+                }
+                
+                
                 
                 std::cout << ai << " move: " << move << "\n\n";
                 
@@ -335,7 +328,7 @@ public:
             generateGrid(r,c, playerSymbol, turn);
 
             
-            //deletes the element of corresponding to the position played in current turn
+            //deletes element of corresponding move to position played in current turn
             computerOptions.erase(computerOptions.begin() + position);
             
             
@@ -401,7 +394,9 @@ void Game::menuOptions()
                     }
                 }while(player != 1 && player != 2);
                 
-                play(playerName, player);
+                human = player;             //assigns human player a 1 or a 2
+                
+                play();
                 playAgain();
                 break;
                 
@@ -470,21 +465,66 @@ void Game::learn()
     
 }
 
+//Switches players after every turn
+void Game::playerRoles()
+{
+    //human = player;             //assigns human player a 1 or a 2
+    
+    //Assigns first and second player to AI or human
+    if(human==1)
+    {
+        computer = 2;
+    }
+    else if(human == 2)
+    {
+        computer = 1;
+        player = 1;
+    }
+}
+
 //Declares winner with a print statement, then terminates game
 void Game::declareWinner(int turn)
 {
+    std::string winner;     //to print who the winner is
     
-    std::cout << "\n***Player " << player << " is the winner!***" << std::endl;
-    playAgain();
+    
+    if(human==player)
+    {
+        winner = playerName;
+    }
+    else if(computer == player)
+    {
+        winner = "Computer";
+    }
+    
+    
+    std::cout << "\n***" << winner << " is the winner!***\n";
     scores();
-    //playAgain();
-    endGame();
+    
+    if(gamesPlayed < 10)
+    {
+        playAgain();
+    }
+    else
+    {
+        std::cout << "You've reached the maximum of 10 games!\nHere is your score chart.\nPlay again through the main menu.\n\n";
+        
+        printScores();          //prints final scores of all games
+        gamesPlayed = 0;        //resets number of games played to 0
+        printMenu();            //redirects user to main menu
+    }
 }
 
 //Declares game a "Cat Game"
 void Game::catGame()
 {
     std::cout << "\n***Cat game!***\n";
+    cat++;
+    scores();
+    playAgain();
+    
+    //playAgain();
+    endGame();
 }
 
 //Asks the user if they would like to play again
@@ -495,7 +535,7 @@ void Game::playAgain()
     int count = 1;
     
     
-    gamesPlayed++;      //keeps track of how many games are being played
+    //gamesPlayed++;      //keeps track of how many games are being played
     
     do
     {
@@ -509,14 +549,14 @@ void Game::playAgain()
                 
                 newGame();
                 menuOptions();      //gives option to select other play
-                play(playerName, player);
+                play();
                 break;
                 
             case 'y':
                 
                 newGame();
                 menuOptions();      //gives option to select other play
-                play(playerName, player);
+                play();
                 break;
                 
             case 'N':
@@ -569,40 +609,24 @@ void Game::scores()
 {
     std::string win = "W";
     std::string lose = "L";
+    std::string tie = "T";
     int losses;                 //Used to calculate the losses of a player
     
+    gamesPlayed++;      //keeps track of how many games are being played
     
-    /*
-    if(player == human)
-    {
-        humanWin[gamesPlayed-1]=win;
-        
-    }
-    else
-    {
-        humanWin[gamesPlayed-1]=lose;
-    }
-    
-    if(player == computer)
-    {
-        computerWin[gamesPlayed]=win;
-        
-    }
-    else
-    {
-        computerWin[gamesPlayed-1]= lose;
-    }
-    */
     
     std::cout << "Games played are " << gamesPlayed << "\n";
     
     for(int i = 0; i < gamesPlayed; i++)
     {
-            
+            if(player == cat)
+            {
+                humanWin[gamesPlayed -1]= tie;
+                cat = 0;
+            }
             if(player == human)
             {
                 humanWin[gamesPlayed-1]=win;
-                
             }
             else
             {
@@ -611,7 +635,6 @@ void Game::scores()
             if(player == computer)
             {
                 computerWin[gamesPlayed-1]=win;
-                
             }
             else
             {
@@ -619,9 +642,7 @@ void Game::scores()
             }
     }
      
-    
-    
-    
+
 }
 
 void Game::printScores()
@@ -631,7 +652,7 @@ void Game::printScores()
     std::cout << "---------------------------------------------\n";
     for(int i = 0; i < gamesPlayed; i++)
     {
-        if(i < 10)
+        if(i < 9)
         {
             std::cout << "    Game " << i + 1  << "     |       " << humanWin[i] << "       |         " << computerWin[i] << "\n";
         }
