@@ -25,6 +25,7 @@
 /* Begin PBXFileReference section */
 		C940EE1C25CC962E0031B12A /* Tic-Tac-Toe */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Tic-Tac-Toe"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C940EE1F25CC962E0031B12A /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		C9D4A79F25F1F49500A68396 /* Game.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Game.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +59,7 @@
 			isa = PBXGroup;
 			children = (
 				C940EE1F25CC962E0031B12A /* main.cpp */,
+				C9D4A79F25F1F49500A68396 /* Game.h */,
 			);
 			path = "Tic-Tac-Toe";
 			sourceTree = "<group>";
